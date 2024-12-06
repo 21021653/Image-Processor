@@ -2,6 +2,7 @@ from PIL import Image
 import subprocess
 import os
 import cv2
+from PIL import Image, ImageEnhance, ImageQt
 
 from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QLineEdit,QWidget, QTabWidget, QSlider, QComboBox
 from PyQt6 import uic
@@ -45,10 +46,13 @@ class UI(QMainWindow):
 
         self.label4 = self.findChild(QLabel, "label_4")
 
+        self.sharp_slider = self.findChild(QSlider,"horizontalSlider_2")
+        self.sharp_slider.valueChanged.connect(self.sharpness_slided)
 
         self.bright_slider = self.findChild(QSlider,"horizontalSlider_3")
         self.bright_slider.valueChanged.connect(self.brightness_slided)
 
+        self.label13 = self.findChild(QLabel, "label_13")
         self.label14 = self.findChild(QLabel, "label_14")
         self.label15 = self.findChild(QLabel, "label_15")
         self.label16 = self.findChild(QLabel, "label_16")
@@ -106,9 +110,21 @@ class UI(QMainWindow):
         self.pixmap3 = QPixmap(fname3[0])
         self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
+    def sharpness_slided(self,value):
+        inp = Image.open(fname3[0])
+        sharpness = self.sharp_slider.value()
+        enhancer = ImageEnhance.Sharpness(inp)
+        out =  enhancer.enhance(sharpness)
+        
+        q_image = ImageQt.ImageQt(out)
+        self.pixmap4 = QPixmap.fromImage(q_image)
+        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.sharp_slider.setValue(value)
+        self.label17.setText(str(value))
+
 
     def brightness_slided(self,value):
-        inp = cv2.imread(fname3[0],cv2.COLOR_BGR2RGB)
+        inp = cv2.imread(fname3[0])
         brightness = self.bright_slider.value()
         alpha = 1 + brightness/100 
         beta =  0
@@ -129,7 +145,7 @@ class UI(QMainWindow):
         self.label7.setPixmap(self.pixmap1.scaled(self.label7.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def filter_slided(self,value):
-        inp = cv2.imread(fname6[0],cv2.COLOR_BGR2RGB)
+        inp = cv2.imread(fname6[0])
         if value % 2 == 0:
             value = value - 1 if value > self.slider.value() else value + 1
         self.slider.setValue(value)
