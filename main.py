@@ -170,19 +170,16 @@ class UI(QMainWindow):
                 inp_current.save(fname4[0])
 
     def update_image(self):
-        """
-        Apply all adjustments (hue, saturation, temperature) interactively based on slider values.
-        """
+        # Hàm điều chỉnh cả sharpness, brightness và màu sắc
         global inp_current
         if inp_original:
-            # Get slider values
+            # Lấy giá trị thanh trượt
             self.hue_value = self.hue_slider.value()
             self.saturation_value = self.saturation_slider.value() 
             self.temperature_value = self.temp_slider.value()
             self.brightness_value = self.bright_slider.value()
             self.sharpness_value = self.sharp_slider.value()
 
-            # Apply adjustments in sequence
             img = inp_original.copy()
             img = adjust_hue(img, self.hue_value)
             img = adjust_saturation(img, self.saturation_value)
@@ -190,7 +187,7 @@ class UI(QMainWindow):
             img = adjust_brightness(img, self.brightness_value)
             img = adjust_sharpness(img, self.sharpness_value)
 
-            # Update the current image and display
+            # Cập nhật ảnh hiện tại và hiển thị
             inp_current = img
             q_image = ImageQt.ImageQt(img)
             self.pixmap4 = QPixmap.fromImage(q_image)
@@ -207,6 +204,7 @@ class UI(QMainWindow):
         self.label7.setPixmap(self.pixmap1.scaled(self.label7.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def filter_slided(self,value):
+        #Áp dụng filter dựa trên lựa chọn
         if value % 2 == 0:
             value = value - 1 if value > self.slider.value() else value + 1
         self.slider.setValue(value)
