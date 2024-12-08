@@ -4,9 +4,8 @@ import os
 import cv2
 from PIL import Image, ImageEnhance, ImageQt
 from super_resolution import super_resolve
-from brightness_sharpness import adjust_sharpness, adjust_brightness
 from filter import apply_filter
-from color import adjust_hue, adjust_saturation, adjust_temperature 
+from color import adjust_hue, adjust_saturation, adjust_temperature, adjust_sharpness, adjust_brightness 
 import numpy as np
 
 from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QLineEdit,QWidget, QTabWidget, QSlider, QComboBox
@@ -60,19 +59,29 @@ class UI(QMainWindow):
         self.label4 = self.findChild(QLabel, "label_4")
 
         self.sharp_slider = self.findChild(QSlider,"horizontalSlider_2")
-        self.sharp_slider.valueChanged.connect(self.sharpness_slided)
+        self.sharp_slider.setRange(-50, 50)  # -50 = darker, 0 = original, 50 = brighter
+        self.sharp_slider.setValue(0)
+        self.sharp_slider.valueChanged.connect(self.update_image)
 
         self.bright_slider = self.findChild(QSlider,"horizontalSlider_3")
-        self.bright_slider.valueChanged.connect(self.brightness_slided)
+        self.bright_slider.setRange(-50, 50)  # -50 = darker, 0 = original, 50 = brighter
+        self.bright_slider.setValue(0)
+        self.bright_slider.valueChanged.connect(self.update_image)
 
         self.hue_slider = self.findChild(QSlider,"horizontalSlider_4")
-        self.hue_slider.valueChanged.connect(self.hue_slided)
+        self.hue_slider.setRange(-50, 50)  # -50 = darker, 0 = original, 50 = brighter
+        self.hue_slider.setValue(0)
+        self.hue_slider.valueChanged.connect(self.update_image)
 
         self.saturation_slider = self.findChild(QSlider,"horizontalSlider_5")
-        self.saturation_slider.valueChanged.connect(self.saturation_slided)
+        self.saturation_slider.setRange(-50, 50)  # -50 = darker, 0 = original, 50 = brighter
+        self.saturation_slider.setValue(0)
+        self.saturation_slider.valueChanged.connect(self.update_image)
 
         self.temp_slider = self.findChild(QSlider,"horizontalSlider_6")
-        self.temp_slider.valueChanged.connect(self.temp_slided)
+        self.temp_slider.setRange(-50, 50)  # -50 = darker, 0 = original, 50 = brighter
+        self.temp_slider.setValue(0)
+        self.temp_slider.valueChanged.connect(self.update_image)
 
 
         self.label13 = self.findChild(QLabel, "label_13")
@@ -145,83 +154,50 @@ class UI(QMainWindow):
     ##################################################################################################
     def clicker5(self):
         global fname3
+        global inp_original
+        
         fname3 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)")
-        self.pixmap3 = QPixmap(fname3[0])
-        self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        if fname3:
+            inp_original = Image.open(fname3[0])
+            inp_current = inp_original.copy()
+            self.pixmap3 = QPixmap(fname3[0])
+            self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def clicker4(self):
-        fname4 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
-        if fname4 and fname3:
-            if sharp_out is not None:
-                out_rgb = cv2.cvtColor(sharp_out, cv2.COLOR_BGR2RGB)
-            elif bright_out is not None:
-                out_rgb = cv2.cvtColor(bright_out, cv2.COLOR_BGR2RGB)
-            elif hue_out is not None:
-                out_rgb = cv2.cvtColor(hue_out, cv2.COLOR_BGR2RGB)
-            elif saturation_out is not None:
-                out_rgb = cv2.cvtColor(saturation_out, cv2.COLOR_BGR2RGB)
-            elif temperature_out is not None:
-                out_rgb = cv2.cvtColor(temperature_out, cv2.COLOR_BGR2RGB)    
-            out_pil = Image.fromarray(out_rgb)
-            out_pil.save(fname4[0])
+        if inp_current:
+            fname4 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
+            if fname4:
+                inp_current.save(fname4[0])
 
-    def sharpness_slided(self,value):
-        global sharp_out
-        sharp_out =  adjust_sharpness(fname3[0],value)
-        q_image = ImageQt.ImageQt(sharp_out)
-        sharp_out = np.array(sharp_out)
-        self.pixmap4 = QPixmap.fromImage(q_image)
-        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.sharp_slider.setValue(value)
-        self.label17.setText(str(value))
+    def update_image(self):
+        """
+        Apply all adjustments (hue, saturation, temperature) interactively based on slider values.
+        """
+        global inp_current
+        if inp_original:
+            # Get slider values
+            self.hue_value = self.hue_slider.value()
+            self.saturation_value = self.saturation_slider.value() 
+            self.temperature_value = self.temp_slider.value()
+            self.brightness_value = self.bright_slider.value()
+            self.sharpness_value = self.sharp_slider.value()
 
-    def brightness_slided(self,value):
-        global bright_out
-        bright_out = adjust_brightness(fname3[0], value)
-        height, width, channel = bright_out.shape
-        bright_out = np.array(bright_out)
-        bytes_per_line = channel * width
-        q_image = QImage(bright_out.data,width, height, bytes_per_line, QImage.Format.Format_BGR888)
-        self.pixmap4 = QPixmap.fromImage(q_image)
-        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.bright_slider.setValue(value)
-        self.label18.setText(str(value))
+            # Apply adjustments in sequence
+            img = inp_original.copy()
+            img = adjust_hue(img, self.hue_value)
+            img = adjust_saturation(img, self.saturation_value)
+            img = adjust_temperature(img, self.temperature_value)
+            img = adjust_brightness(img, self.brightness_value)
+            img = adjust_sharpness(img, self.sharpness_value)
 
-    def hue_slided(self,value):
-        global hue_out
-        hue_out = adjust_hue(fname3[0], value)
-        hue_out = np.array(hue_out)
-        height, width, channel = hue_out.shape
-        bytes_per_line = channel * width
-        q_image = QImage(hue_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
-        self.pixmap4 = QPixmap.fromImage(q_image)
-        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.hue_slider.setValue(value)
-        self.label22.setText(str(value))
-
-    def saturation_slided(self,value):
-        global saturation_out
-        saturation_out = adjust_saturation(fname3[0], value)
-        saturation_out = np.array(saturation_out)
-        height, width, channel = saturation_out.shape
-        bytes_per_line = channel * width
-        q_image = QImage(saturation_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
-        self.pixmap4 = QPixmap.fromImage(q_image)
-        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.saturation_slider.setValue(value)
-        self.label24.setText(str(value))
-
-    def temp_slided(self,value):
-        global temperature_out
-        temperature_out = adjust_saturation(fname3[0], value)
-        temperature_out = np.array(temperature_out)
-        height, width, channel = temperature_out.shape
-        bytes_per_line = channel * width
-        q_image = QImage(temperature_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
-        self.pixmap4 = QPixmap.fromImage(q_image)
-        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.temp_slider.setValue(value)
-        self.label26.setText(str(value))
+            # Update the current image and display
+            inp_current = img
+            q_image = ImageQt.ImageQt(img)
+            self.pixmap4 = QPixmap.fromImage(q_image)
+            self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.label22.setText(str(self.hue_value))
+            self.label24.setText(str(self.saturation_value))
+            self.label26.setText(str(self.temperature_value))
 
     ##################################################################################################
     def clicker7(self):
