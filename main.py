@@ -6,6 +6,7 @@ from PIL import Image, ImageEnhance, ImageQt
 from super_resolution import super_resolve
 from brightness_sharpness import adjust_sharpness, adjust_brightness
 from filter import apply_filter
+from color import adjust_hue, adjust_saturation, adjust_temperature 
 import numpy as np
 
 from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QLineEdit,QWidget, QTabWidget, QSlider, QComboBox
@@ -64,17 +65,28 @@ class UI(QMainWindow):
         self.bright_slider = self.findChild(QSlider,"horizontalSlider_3")
         self.bright_slider.valueChanged.connect(self.brightness_slided)
 
+        self.hue_slider = self.findChild(QSlider,"horizontalSlider_4")
+        self.hue_slider.valueChanged.connect(self.hue_slided)
+
+        self.saturation_slider = self.findChild(QSlider,"horizontalSlider_5")
+        self.saturation_slider.valueChanged.connect(self.saturation_slided)
+
+        self.temp_slider = self.findChild(QSlider,"horizontalSlider_6")
+        self.temp_slider.valueChanged.connect(self.temp_slided)
+
+
         self.label13 = self.findChild(QLabel, "label_13")
         self.label14 = self.findChild(QLabel, "label_14")
         self.label15 = self.findChild(QLabel, "label_15")
         self.label16 = self.findChild(QLabel, "label_16")
         self.label17 = self.findChild(QLabel, "label_17")
         self.label18 = self.findChild(QLabel, "label_18")
-        self.label21 = self.findChild(QLabel, "label_14")
-        self.label22 = self.findChild(QLabel, "label_15")
-        self.label23 = self.findChild(QLabel, "label_16")
-        self.label24 = self.findChild(QLabel, "label_17")
-        self.label25 = self.findChild(QLabel, "label_18")
+        self.label21 = self.findChild(QLabel, "label_21")
+        self.label22 = self.findChild(QLabel, "label_22")
+        self.label23 = self.findChild(QLabel, "label_23")
+        self.label24 = self.findChild(QLabel, "label_24")
+        self.label25 = self.findChild(QLabel, "label_25")
+        self.label26 = self.findChild(QLabel, "label_26")
 
         ###############################################################################
         self.tab3 = self.findChild(QWidget, "tab_3")
@@ -144,6 +156,12 @@ class UI(QMainWindow):
                 out_rgb = cv2.cvtColor(sharp_out, cv2.COLOR_BGR2RGB)
             elif bright_out is not None:
                 out_rgb = cv2.cvtColor(bright_out, cv2.COLOR_BGR2RGB)
+            elif hue_out is not None:
+                out_rgb = cv2.cvtColor(hue_out, cv2.COLOR_BGR2RGB)
+            elif saturation_out is not None:
+                out_rgb = cv2.cvtColor(saturation_out, cv2.COLOR_BGR2RGB)
+            elif temperature_out is not None:
+                out_rgb = cv2.cvtColor(temperature_out, cv2.COLOR_BGR2RGB)    
             out_pil = Image.fromarray(out_rgb)
             out_pil.save(fname4[0])
 
@@ -168,6 +186,42 @@ class UI(QMainWindow):
         self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         self.bright_slider.setValue(value)
         self.label18.setText(str(value))
+
+    def hue_slided(self,value):
+        global hue_out
+        hue_out = adjust_hue(fname3[0], value)
+        hue_out = np.array(hue_out)
+        height, width, channel = hue_out.shape
+        bytes_per_line = channel * width
+        q_image = QImage(hue_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
+        self.pixmap4 = QPixmap.fromImage(q_image)
+        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.hue_slider.setValue(value)
+        self.label22.setText(str(value))
+
+    def saturation_slided(self,value):
+        global saturation_out
+        saturation_out = adjust_saturation(fname3[0], value)
+        saturation_out = np.array(saturation_out)
+        height, width, channel = saturation_out.shape
+        bytes_per_line = channel * width
+        q_image = QImage(saturation_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
+        self.pixmap4 = QPixmap.fromImage(q_image)
+        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.saturation_slider.setValue(value)
+        self.label24.setText(str(value))
+
+    def temp_slided(self,value):
+        global temperature_out
+        temperature_out = adjust_saturation(fname3[0], value)
+        temperature_out = np.array(temperature_out)
+        height, width, channel = temperature_out.shape
+        bytes_per_line = channel * width
+        q_image = QImage(temperature_out.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
+        self.pixmap4 = QPixmap.fromImage(q_image)
+        self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        self.temp_slider.setValue(value)
+        self.label26.setText(str(value))
 
     ##################################################################################################
     def clicker7(self):
