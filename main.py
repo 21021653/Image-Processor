@@ -1,14 +1,13 @@
 from PIL import Image
-import subprocess
-import os
 import cv2
-from PIL import Image, ImageEnhance, ImageQt
+from PIL import Image, ImageQt
 from super_resolution import super_resolve
 from filter import apply_filter
 from color import adjust_hue, adjust_saturation, adjust_temperature, adjust_sharpness, adjust_brightness 
+from histogram import histogram_equalization_color
 import numpy as np
 
-from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QLineEdit,QWidget, QTabWidget, QSlider, QComboBox
+from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QWidget, QTabWidget, QSlider, QComboBox
 from PyQt6 import uic
 from PyQt6.QtGui import QPixmap, QImage
 from PyQt6.QtCore import Qt
@@ -122,11 +121,28 @@ class UI(QMainWindow):
 
         self.slider = self.findChild(QSlider, "horizontalSlider")
         self.slider.setMinimum(3)
-        self.slider.setMaximum(15)
+        self.slider.setMaximum(35)
         self.slider.setTickInterval(2)
         self.slider.valueChanged.connect(self.filter_slided)
-        self.show()
+        
 
+        #############################################################################
+        self.tab4 = self.findChild(QWidget, "tab_4")
+        self.button6 = self.findChild(QPushButton, "pushButton_6")
+        self.button6.clicked.connect(self.clicker6)
+
+        self.button8 = self.findChild(QPushButton, "pushButton_8")
+        self.button8.clicked.connect(self.equalize_histogram)
+
+        self.button10 = self.findChild(QPushButton, "pushButton_10")
+        self.button10.clicked.connect(self.clicker10)
+
+        self.label27 = self.findChild(QLabel, "label_27")
+        self.label28 = self.findChild(QLabel, "label_28")
+        self.label29 = self.findChild(QLabel, "label_29")
+        self.label30 = self.findChild(QLabel, "label_30")
+
+        self.show()
 
     def clicker2(self):
         fname = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
@@ -224,6 +240,26 @@ class UI(QMainWindow):
             out_rgb = cv2.cvtColor(filter_out, cv2.COLOR_BGR2RGB)
             out_pil = Image.fromarray(out_rgb)
             out_pil.save(fname6[0])
+
+    #################################################################################################
+    def clicker6(self):
+        global fname8
+        fname8 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)")
+        self.pixmap0 = QPixmap(fname8[0])
+        self.label27.setPixmap(self.pixmap0.scaled(self.label27.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+
+    def equalize_histogram(self):
+        if fname8:
+            global equalized_out
+            equalized_out = histogram_equalization_color(fname8[0], display=True)
+            img = ImageQt.ImageQt(equalized_out)
+            self.pixmap = QPixmap.fromImage(img)
+            self.label28.setPixmap(self.pixmap.scaled(self.label28.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+
+    def clicker10(self):
+        fname9 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
+        if fname8 and fname9:
+            equalized_out.save(fname9[0])
 
 
 if __name__ == '__main__':
