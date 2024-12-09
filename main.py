@@ -106,10 +106,10 @@ class UI(QMainWindow):
         self.button25.clicked.connect(self.filtered)
 
         self.comboBox = self.findChild(QComboBox,"comboBox")
-        self.comboBox.addItems(["(none)","Salt and Pepper", "Gaussian"])
+        self.comboBox.addItems(["(none)","Salt and Pepper", "Gaussian", "Poisson"])
 
         self.comboBox3 = self.findChild(QComboBox,"comboBox_3")
-        self.comboBox3.addItems(["(none)","Median Filter","Gaussian Filter","Box Filter","NL Means"])
+        self.comboBox3.addItems(["(none)","Median Filter","Gaussian Filter","Box Filter","Butterworth Filter","NL Means"])
 
         self.comboBox4 = self.findChild(QComboBox,"comboBox_4")
         self.comboBox4.addItems(["3","5","7","9","11","13","15"])
