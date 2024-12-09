@@ -3,9 +3,6 @@ from PIL import Image, ImageEnhance
 import cv2
 
 def adjust_hue(image, hue_value):
-    """
-    Adjusts the hue of the image using HSV color space.
-    """
     img_np = np.array(image)
     hsv = cv2.cvtColor(img_np, cv2.COLOR_RGB2HSV)
     h, s, v = cv2.split(hsv)
@@ -18,9 +15,6 @@ def adjust_hue(image, hue_value):
 
 
 def adjust_saturation(image, saturation_value):
-    """
-    Adjusts the saturation of the image using HSV color space.
-    """
     img_np = np.array(image)
     hsv = cv2.cvtColor(img_np, cv2.COLOR_RGB2HSV)
     h, s, v = cv2.split(hsv)
@@ -30,9 +24,6 @@ def adjust_saturation(image, saturation_value):
     return Image.fromarray(img_np)
 
 def adjust_temperature(image, temperature_value):
-    """
-    Adjusts the image temperature by modifying blue and red channels.
-    """
     img_np = np.array(image)
     b, g, r = cv2.split(img_np)
     r = np.clip(r.astype(int) - temperature_value, 0, 255).astype('uint8')

@@ -44,7 +44,7 @@ class UI(QMainWindow):
         self.label70 = self.findChild(QLabel, "label_70")
 
         self.modelBox = self.findChild(QComboBox,"comboBox_2")
-        self.modelBox.addItems(["EDSR","ESPCN","FSRCNN","LAPSRN"])
+        self.modelBox.addItems(["EDSR_x3","EDSR_x4","ESPCN_x3","ESPCN_x4","FSRCNN_x4","LAPSRN_x4"])
         
 
         ##############################################################################
@@ -160,7 +160,7 @@ class UI(QMainWindow):
             global resol_out
             model_name = self.modelBox.currentText()
             resol_out = super_resolve(fname2[0],model_name)
-            psnr_value = psnr(inp,resol_out)
+            psnr_value,_ = psnr(inp,resol_out)
             height, width, channel = resol_out.shape
             bytes_per_line = channel * width
             q_image = QImage(resol_out.data,width, height, bytes_per_line, QImage.Format.Format_BGR888)
@@ -254,8 +254,8 @@ class UI(QMainWindow):
                 inp = cv2.imread(fname6[0])
                 noise_out = add_noise(fname6[0],noise_type)
                 filter_out = apply_filter(noise_out,filter_type,kernel_strength)
-                psnr_value = psnr(inp,filter_out)
-                plot_images(inp, noise_out, filter_out, filter_type, psnr_value)
+                _,mse_value = psnr(inp,filter_out)
+                plot_images(inp, noise_out, filter_out, filter_type, mse_value)
 
     def clicker23(self):
         fname7 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)" )

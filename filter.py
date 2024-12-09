@@ -125,9 +125,9 @@ def psnr(original, filtered):
     if mse == 0:
         return float('inf')
     max_pixel = 255.0
-    return 20 * np.log10(max_pixel / np.sqrt(mse))
+    return 20 * np.log10(max_pixel / np.sqrt(mse)), mse
 
-def plot_images(original, noisy, filtered, filter_name, psnr_value):
+def plot_images(original, noisy, filtered, filter_name, mse_value):
     plt.figure(figsize=(12, 6))
     
     # Ảnh gốc
@@ -145,8 +145,9 @@ def plot_images(original, noisy, filtered, filter_name, psnr_value):
     # Ảnh đã lọc
     plt.subplot(1, 3, 3)
     plt.imshow(cv2.cvtColor(filtered, cv2.COLOR_BGR2RGB))
-    plt.title(f"Filtered Image ({filter_name})\nPSNR: {psnr_value:.2f}")
+    plt.title(f"Filtered Image ({filter_name})\nMSE: {mse_value:.2f}")
     plt.axis("off")
     
     plt.tight_layout()
     plt.show()
+

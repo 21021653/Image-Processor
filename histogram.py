@@ -5,17 +5,6 @@ import numpy as np
 
 
 def histogram_equalization_color(input_path, output_path=None, display=True):
-    """
-    Apply histogram equalization to a color image and save/display the result.
-
-    Parameters:
-        input_path (str): Path to the input image.
-        output_path (str, optional): Path to save the output image. Defaults to None.
-        display (bool): Whether to display the input and output histograms. Defaults to True.
-
-    Returns:
-        PIL.Image: Equalized image in PIL format.
-    """
     # Load the image in color (BGR format)
     img = cv2.imread(input_path)
 
