@@ -74,7 +74,12 @@ def psnr(original, filtered):
     """
     Calculate Peak Signal-to-Noise Ratio (PSNR).
     """
-    mse = np.mean((original - filtered) ** 2)
+    if original.shape != filtered.shape:
+        filtered_resized = cv2.resize(filtered, (original.shape[1], original.shape[0]), interpolation=cv2.INTER_CUBIC)
+    else:
+        filtered_resized = filtered
+
+    mse = np.mean((original - filtered_resized) ** 2)
     if mse == 0:
         return float('inf')
     max_pixel = 255.0

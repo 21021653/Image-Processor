@@ -23,28 +23,29 @@ class UI(QMainWindow):
         self.tabwidget = self.findChild(QTabWidget, "tabWidget")
 
         self.tab = self.findChild(QWidget, "tab")
-        self.label = self.findChild(QLabel, "label")
-
+        
         self.button = self.findChild(QPushButton, "pushButton")
         self.button.clicked.connect(self.super_resolution)
 
-        self.label2 = self.findChild(QLabel, "label_2")
         self.button2 = self.findChild(QPushButton, "pushButton_2")
         self.button2.clicked.connect(self.clicker2)
 
         self.button3 = self.findChild(QPushButton, "pushButton_3")
         self.button3.clicked.connect(self.clicker3)
 
+        self.label = self.findChild(QLabel, "label")
+        self.label2 = self.findChild(QLabel, "label_2")
         self.label19 = self.findChild(QLabel, "label_19")
         self.label20 = self.findChild(QLabel, "label_20")
-        
+        self.label66 = self.findChild(QLabel, "label_66")
+        self.label67 = self.findChild(QLabel, "label_67")
+        self.label68 = self.findChild(QLabel, "label_68")
+        self.label69 = self.findChild(QLabel, "label_69")
+        self.label70 = self.findChild(QLabel, "label_70")
 
         self.modelBox = self.findChild(QComboBox,"comboBox_2")
         self.modelBox.addItems(["EDSR","ESPCN","FSRCNN","LAPSRN"])
         
-        global model_name
-        model_name = self.modelBox.currentText()
-
 
         ##############################################################################
         self.tab2 = self.findChild(QWidget, "tab_2")
@@ -120,8 +121,6 @@ class UI(QMainWindow):
         self.label7 = self.findChild(QLabel, "label_7")
         self.label8 = self.findChild(QLabel, "label_8")
 
-        
-
         #############################################################################
         self.tab4 = self.findChild(QWidget, "tab_4")
         self.button6 = self.findChild(QPushButton, "pushButton_6")
@@ -141,8 +140,8 @@ class UI(QMainWindow):
         self.show()
 
     def clicker2(self):
-        fname = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
-        if fname2[0] is not None and fname[0] is not None:
+        fname = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)" )
+        if fname2[0] is not None and fname[0] is not None and resol_out is not None:
             out_rgb = cv2.cvtColor(resol_out, cv2.COLOR_BGR2RGB)
             out_pil = Image.fromarray(out_rgb)
             out_pil.save(fname[0])
@@ -150,25 +149,34 @@ class UI(QMainWindow):
     def clicker3(self):
         global fname2
         fname2 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)")
-        self.pixmap5 = QPixmap(fname2[0])
-        self.label19.setPixmap(self.pixmap5.scaled(self.label19.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        if fname2[0] is not None:
+            self.pixmap5 = QPixmap(fname2[0])
+            self.label19.setPixmap(self.pixmap5.scaled(self.label19.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
         
     def super_resolution(self):
         if fname2[0] is not None:
+            inp = cv2.imread(fname2[0])
+            original_height, original_width, original_channel = inp.shape
             global resol_out
+            model_name = self.modelBox.currentText()
             resol_out = super_resolve(fname2[0],model_name)
+            psnr_value = psnr(inp,resol_out)
             height, width, channel = resol_out.shape
             bytes_per_line = channel * width
             q_image = QImage(resol_out.data,width, height, bytes_per_line, QImage.Format.Format_BGR888)
             self.pixmap6 = QPixmap.fromImage(q_image)
             self.label20.setPixmap(self.pixmap6.scaled(self.label20.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.label68.setText(f"{original_width}x{original_height}")
+            self.label70.setText(f"{width}x{height}")
+            self.label66.setText(f"PSNR: {psnr_value:.2f}")
+
 
     ##################################################################################################
     def clicker5(self):
         global fname3
         global inp_original
         
-        fname3 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)")
+        fname3 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)")
         if fname3[0] is not None:
             inp_original = Image.open(fname3[0])
             inp_current = inp_original.copy()
@@ -176,15 +184,18 @@ class UI(QMainWindow):
             self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def clicker4(self):
-        if inp_current:
-            fname4 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
+        if inp_current is not None:
+            fname4 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)" )
             if fname4[0] is not None:
                 inp_current.save(fname4[0])
 
     def update_image(self):
         # Hàm điều chỉnh cả sharpness, brightness và màu sắc
         global inp_current
-        if inp_original:
+        if not 'inp_original' in globals() or inp_original is None:
+            print("Error. Please load an image before adjusting sliders.")
+            return
+        if inp_original is not None:
             # Lấy giá trị thanh trượt
             self.hue_value = self.hue_slider.value()
             self.saturation_value = self.saturation_slider.value() 
@@ -213,18 +224,19 @@ class UI(QMainWindow):
     ##################################################################################################
     def clicker7(self):
         global fname6
-        fname6 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)")
-        if fname6[0]:
+        fname6 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)")
+        if fname6[0] is not None:
             self.pixmap1 = QPixmap(fname6[0])
             self.label7.setPixmap(self.pixmap1.scaled(self.label7.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def filtered(self):
         #Áp dụng filter dựa trên lựa chọn
+        global filter_out
         if fname6[0] is not None:
             filter_type = self.comboBox3.currentText()
             kernel_strength = self.comboBox4.currentText()
             if filter_type != "(none)":
-                global filter_out
+                
                 filter_out = apply_filter(fname6[0],filter_type,kernel_strength)
                 height, width, channel = filter_out.shape
                 bytes_per_line = channel * width
@@ -233,6 +245,7 @@ class UI(QMainWindow):
                 self.label7.setPixmap(self.pixmap2.scaled(self.label7.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
             
     def clicker24(self):
+        global filter_out
         if fname6[0] is not None:
             noise_type = self.comboBox.currentText()
             filter_type = self.comboBox3.currentText()
@@ -245,7 +258,7 @@ class UI(QMainWindow):
                 plot_images(inp, noise_out, filter_out, filter_type, psnr_value)
 
     def clicker23(self):
-        fname7 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
+        fname7 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)" )
         if fname7[0] and filter_out is not None:
             out_rgb = cv2.cvtColor(filter_out, cv2.COLOR_BGR2RGB)
             out_pil = Image.fromarray(out_rgb)
@@ -255,13 +268,13 @@ class UI(QMainWindow):
     #################################################################################################
     def clicker6(self):
         global fname8
-        fname8 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)")
-        if fname8[0]:
+        fname8 = QFileDialog.getOpenFileName(self, "Open File", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)")
+        if fname8[0] is not None:
             self.pixmap0 = QPixmap(fname8[0])
             self.label27.setPixmap(self.pixmap0.scaled(self.label27.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def equalize_histogram(self):
-        if fname8[0]:
+        if fname8[0] is not None:
             global equalized_out
             equalized_out = histogram_equalization_color(fname8[0], display=True)
             img = ImageQt.ImageQt(equalized_out)
@@ -269,8 +282,8 @@ class UI(QMainWindow):
             self.label28.setPixmap(self.pixmap.scaled(self.label28.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def clicker10(self):
-        fname9 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
-        if fname8[0] and fname9[0]:
+        fname9 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)" )
+        if fname8[0] is not None and fname9[0] is not None:
             equalized_out.save(fname9[0])
 
 
