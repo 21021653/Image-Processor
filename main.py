@@ -17,7 +17,7 @@ import PyQt6
 class UI(QMainWindow):
     def __init__(self):
         super(UI, self).__init__()
-        uic.loadUi("convert.ui", self)
+        uic.loadUi("main.ui", self)
         self.setWindowTitle("Image Enhancer")
         self.tabwidget = self.findChild(QTabWidget, "tabWidget")
 
@@ -87,14 +87,9 @@ class UI(QMainWindow):
         self.label14 = self.findChild(QLabel, "label_14")
         self.label15 = self.findChild(QLabel, "label_15")
         self.label16 = self.findChild(QLabel, "label_16")
-        self.label17 = self.findChild(QLabel, "label_17")
-        self.label18 = self.findChild(QLabel, "label_18")
         self.label21 = self.findChild(QLabel, "label_21")
-        self.label22 = self.findChild(QLabel, "label_22")
         self.label23 = self.findChild(QLabel, "label_23")
-        self.label24 = self.findChild(QLabel, "label_24")
         self.label25 = self.findChild(QLabel, "label_25")
-        self.label26 = self.findChild(QLabel, "label_26")
 
         ###############################################################################
         self.tab3 = self.findChild(QWidget, "tab_3")
@@ -117,7 +112,6 @@ class UI(QMainWindow):
         self.label9 = self.findChild(QLabel, "label_9")
         self.label10 = self.findChild(QLabel, "label_10")
         self.label11 = self.findChild(QLabel, "label_11")
-        self.label12 = self.findChild(QLabel, "label_12")
 
         self.slider = self.findChild(QSlider, "horizontalSlider")
         self.slider.setMinimum(3)
@@ -208,9 +202,11 @@ class UI(QMainWindow):
             q_image = ImageQt.ImageQt(img)
             self.pixmap4 = QPixmap.fromImage(q_image)
             self.label16.setPixmap(self.pixmap4.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-            self.label22.setText(str(self.hue_value))
-            self.label24.setText(str(self.saturation_value))
-            self.label26.setText(str(self.temperature_value))
+            self.label13.setText(f"Sharpness: {self.sharpness_value}")
+            self.label14.setText(f"Brightness: {self.brightness_value}")
+            self.label21.setText(f"Hue: {self.hue_value}")
+            self.label23.setText(f"Saturation: {self.saturation_value}")
+            self.label25.setText(f"Temperature: {self.temperature_value}")
 
     ##################################################################################################
     def clicker7(self):
@@ -232,7 +228,7 @@ class UI(QMainWindow):
             q_image = QImage(filter_out.data,width, height, bytes_per_line, QImage.Format.Format_BGR888)
             self.pixmap2 = QPixmap.fromImage(q_image)
             self.label8.setPixmap(self.pixmap2.scaled(self.label8.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-        self.label12.setText(str(value))
+        self.label11.setText(f"Kernel size: {self.slider.value()}")
 
     def clicker9(self):
         fname7 = QFileDialog.getSaveFileName(self, "Set File Name", "D://OFVS//videos","JPG Files (*.jpg);;PNG Files(*.png)" )
