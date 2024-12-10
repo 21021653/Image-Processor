@@ -44,7 +44,7 @@ class UI(QMainWindow):
         self.label70 = self.findChild(QLabel, "label_70")
 
         self.modelBox = self.findChild(QComboBox,"comboBox_2")
-        self.modelBox.addItems(["EDSR_x3","EDSR_x4","ESPCN_x3","ESPCN_x4","FSRCNN_x4","LAPSRN_x4", "Bicubic_x3", "Bicubic_x4", "Lanczos_x3", "Lanczos_x4"])
+        self.modelBox.addItems(["(none)","EDSR_x3","EDSR_x4","ESPCN_x3","ESPCN_x4","FSRCNN_x4","LAPSRN_x4", "Bicubic_x3", "Bicubic_x4", "Lanczos_x3", "Lanczos_x4"])
         
         
         ##############################################################################
@@ -159,13 +159,14 @@ class UI(QMainWindow):
             original_height, original_width, _ = inp.shape
             global resol_out
             model_name = self.modelBox.currentText()
-            resol_out = super_resolve(fname2[0],model_name)
-            height, width, _ = resol_out.shape
-            psnr_value,_ = psnr(inp,resol_out)
-            self.display_image(resol_out,self.label20)
-            self.label68.setText(f"{original_width}x{original_height}")
-            self.label70.setText(f"{width}x{height}")
-            self.label66.setText(f"PSNR: {psnr_value:.2f}")
+            if model_name != "(none)":
+                resol_out = super_resolve(fname2[0],model_name)
+                height, width, _ = resol_out.shape
+                psnr_value,_ = psnr(inp,resol_out)
+                self.display_image(resol_out,self.label20)
+                self.label68.setText(f"{original_width}x{original_height}")
+                self.label70.setText(f"{width}x{height}")
+                self.label66.setText(f"PSNR: {psnr_value:.2f}")
 
 
     ##################################################################################################
@@ -176,7 +177,6 @@ class UI(QMainWindow):
         fname3 = QFileDialog.getOpenFileName(self, "Open File","","JPG Files (*.jpg *.jpeg);;PNG Files(*.png)")
         if fname3[0] is not None:
             inp_original = Image.open(fname3[0])
-            inp_current = inp_original.copy()
             self.pixmap3 = QPixmap(fname3[0])
             self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
