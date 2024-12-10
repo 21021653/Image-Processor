@@ -89,9 +89,9 @@ def add_noise(image_path, noise_type):
     inp = cv2.imread(image_path)
     
     if noise_type == "Salt and Pepper":
-        out = add_salt_pepper_noise(inp, salt_prob=0.1,pepper_prob=0.1)
+        out = add_salt_pepper_noise(inp, salt_prob=0.1,pepper_prob=0.13)
     elif noise_type == "Gaussian":
-        out = add_gaussian_noise(inp, mean=0,std=35)
+        out = add_gaussian_noise(inp, mean=0,std=40)
     elif noise_type == "Poisson":
         out = np.random.poisson(inp).astype(np.uint8)
     return out
@@ -101,7 +101,7 @@ def add_gaussian_noise(image, mean=0, std=25):
     noisy_image = image + noise
     return np.clip(noisy_image, 0, 255).astype(np.uint8)
 
-def add_salt_pepper_noise(image, salt_prob=0.02, pepper_prob=0.02):
+def add_salt_pepper_noise(image, salt_prob=0.09, pepper_prob=0.02):
     noisy_image = np.copy(image)
     total_pixels = image.size
     num_salt = int(salt_prob * total_pixels)

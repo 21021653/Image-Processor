@@ -179,6 +179,7 @@ class UI(QMainWindow):
             inp_original = Image.open(fname3[0])
             self.pixmap3 = QPixmap(fname3[0])
             self.label15.setPixmap(self.pixmap3.scaled(self.label15.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.label16.setPixmap(self.pixmap3.scaled(self.label16.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
     def clicker4(self):
         if inp_current is not None:
