@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 from matplotlib import pyplot as plt
+from PIL import Image
+from scipy.ndimage import zoom
 
 def apply_filter(image, filter_type, kernel_strength):
     if isinstance(image, str):
@@ -117,7 +119,9 @@ def add_salt_pepper_noise(image, salt_prob=0.02, pepper_prob=0.02):
 
 def psnr(original, filtered):
     if original.shape != filtered.shape:
-        filtered_resized = cv2.resize(filtered, (original.shape[1], original.shape[0]), interpolation=cv2.INTER_CUBIC)
+        image_array = np.array(filtered)
+        scale = original.shape[1]/filtered.shape[1]
+        filtered_resized = zoom(image_array, (scale, scale, 1))
     else:
         filtered_resized = filtered
 

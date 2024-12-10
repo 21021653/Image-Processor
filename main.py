@@ -44,9 +44,9 @@ class UI(QMainWindow):
         self.label70 = self.findChild(QLabel, "label_70")
 
         self.modelBox = self.findChild(QComboBox,"comboBox_2")
-        self.modelBox.addItems(["EDSR_x3","EDSR_x4","ESPCN_x3","ESPCN_x4","FSRCNN_x4","LAPSRN_x4"])
+        self.modelBox.addItems(["EDSR_x3","EDSR_x4","ESPCN_x3","ESPCN_x4","FSRCNN_x4","LAPSRN_x4", "Bicubic_x3", "Bicubic_x4", "Lanczos_x3", "Lanczos_x4"])
         
-
+        
         ##############################################################################
         self.tab2 = self.findChild(QWidget, "tab_2")
         
