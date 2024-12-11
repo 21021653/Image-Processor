@@ -5,7 +5,7 @@ from super_resolution import super_resolve
 from filter import apply_filter, psnr, plot_images, add_noise
 from color import adjust_hue, adjust_saturation, adjust_temperature, adjust_sharpness, adjust_brightness 
 from histogram import histogram_equalization_color
-
+import time
 import numpy as np
 
 from PyQt6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QFileDialog, QWidget, QTabWidget, QSlider, QComboBox
@@ -160,13 +160,17 @@ class UI(QMainWindow):
             global resol_out
             model_name = self.modelBox.currentText()
             if model_name != "(none)":
+                start = time.time()
                 resol_out = super_resolve(fname2[0],model_name)
+                end = time.time()
+                elapsed_time = end - start
                 height, width, _ = resol_out.shape
                 psnr_value,_ = psnr(inp,resol_out)
                 self.display_image(resol_out,self.label20)
                 self.label68.setText(f"{original_width}x{original_height}")
                 self.label70.setText(f"{width}x{height}")
                 self.label66.setText(f"PSNR: {psnr_value:.2f}")
+                print(f"Running time : {elapsed_time}")
 
 
     ##################################################################################################
@@ -232,8 +236,12 @@ class UI(QMainWindow):
             filter_type = self.comboBox3.currentText()
             kernel_strength = self.comboBox4.currentText()
             if filter_type != "(none)":
+                start = time.time()
                 filter_out = apply_filter(fname6[0],filter_type,kernel_strength)
+                end = time.time()
+                elapsed_time = end - start
                 self.display_image(filter_out,self.label7)
+                print(f"Running time: {elapsed_time}s")
             
     def clicker24(self):
         if fname6[0] is not None:
@@ -243,7 +251,11 @@ class UI(QMainWindow):
             if filter_type != "(none)" and noise_type != "(none)":
                 inp = cv2.imread(fname6[0])
                 noise_out = add_noise(fname6[0],noise_type)
+                start = time.time()
                 filter_out = apply_filter(noise_out,filter_type,kernel_strength)
+                end = time.time()
+                elapsed_time = end - start
+                print(f"Running time: {elapsed_time}s")
                 _,mse_value = psnr(inp,filter_out)
                 plot_images(inp, noise_out, filter_out, filter_type, mse_value)
 
